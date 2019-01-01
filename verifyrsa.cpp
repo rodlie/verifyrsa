@@ -29,10 +29,10 @@ RSA* createPublicRSA(const std::string &key) {
   const char* c_string = key.c_str();
   keybio = BIO_new_mem_buf(reinterpret_cast<const void*>(c_string), -1);
   if (keybio == NULL) { return NULL; }
-  rsa = PEM_read_bio_RSA_PUBKEY(keybio,
-                                &rsa,
-                                NULL,
-                                NULL);
+  rsa = PEM_read_bio_RSAPublicKey(keybio,
+                                  &rsa,
+                                  NULL,
+                                  NULL);
   return rsa;
 }
 
@@ -167,7 +167,7 @@ char *VerifyRSA::sign(std::string privateKey, std::string plainText)
     if (privateKey.find("-----BEGIN RSA PRIVATE KEY-----",0)!=0 ||
         plainText.empty())
     {
-        return "";
+        return NULL;
     }
     RSA* privateRSA = createPrivateRSA(privateKey);
     unsigned char* encMessage;
@@ -181,12 +181,12 @@ char *VerifyRSA::sign(std::string privateKey, std::string plainText)
 
 bool VerifyRSA::verify(std::string publicKey, std::string plainText, char *signatureBase64)
 {
-    if (publicKey.find("-----BEGIN PUBLIC KEY-----",0)!=0 ||
+    if (publicKey.find("-----BEGIN RSA PUBLIC KEY-----",0)!=0 ||
         plainText.empty())
     {
         return false;
     }
-    if (sizeof (signatureBase64)<1) {
+    if (sizeof(signatureBase64)<1) {
         std::cerr << "Not a valid signature!" << std::endl;
         return false;
     }
@@ -197,4 +197,53 @@ bool VerifyRSA::verify(std::string publicKey, std::string plainText, char *signa
     Base64Decode(signatureBase64, &encMessage, &encMessageLength);
     bool result = RSAVerifySignature(publicRSA, encMessage, encMessageLength, plainText.c_str(), plainText.length(), &authentic);
     return result & authentic;
+}
+
+bool VerifyRSA::generate(std::string key, int bits)
+{
+    if (key.empty() || bits == 0 ) { return false; }
+
+    int ret = 0;
+    RSA *r = NULL;
+    BIGNUM *bne = NULL;
+    BIO *bp_public = NULL, *bp_private = NULL;
+    unsigned long e = RSA_F4;
+
+    bne = BN_new();
+    ret = BN_set_word(bne,e);
+    if(ret != 1){
+        BN_free(bne);
+        return  false;
+    }
+
+    r = RSA_new();
+    ret = RSA_generate_key_ex(r, bits, bne, NULL);
+    if(ret != 1){
+        RSA_free(r);
+        BN_free(bne);
+        return false;
+    }
+
+    std::string publicFile = key;
+    publicFile.append("_public.pem");
+    bp_public = BIO_new_file(publicFile.c_str(), "w+");
+    ret = PEM_write_bio_RSAPublicKey(bp_public, r);
+
+    if(ret != 1){
+        BIO_free_all(bp_public);
+        RSA_free(r);
+        BN_free(bne);
+    }
+
+    std::string privateFile = key;
+    privateFile.append("_private.pem");
+    bp_private = BIO_new_file(privateFile.c_str(), "w+");
+    ret = PEM_write_bio_RSAPrivateKey(bp_private, r, NULL, NULL, 0, NULL, NULL);
+
+    BIO_free_all(bp_public);
+    BIO_free_all(bp_private);
+    RSA_free(r);
+    BN_free(bne);
+
+    return (ret == 1);
 }

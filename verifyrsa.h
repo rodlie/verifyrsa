@@ -24,6 +24,8 @@ public:
     static MYLIB_EXPORT bool verify(std::string publicKey,
                                     std::string plainText,
                                     char* signatureBase64);
+    static MYLIB_EXPORT bool generate(std::string key,
+                                      int bits = 2048);
 };
 
 #endif // VERIFYRSA_H

@@ -33,3 +33,5 @@ target_link_libraries(rsa-sign VerifyRSA)
 add_executable(rsa-verify rsa-verify.cpp)
 target_link_libraries(rsa-verify VerifyRSA)
 
+add_executable(rsa-generate rsa-generate.cpp)
+target_link_libraries(rsa-generate VerifyRSA)
