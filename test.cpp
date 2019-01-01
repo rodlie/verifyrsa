@@ -41,8 +41,7 @@ static std::string publicKey ="-----BEGIN PUBLIC KEY-----\n"\
 int main() {
   std::string plainText = "My secret message.\n";
   char* signature = VerifyRSA::sign(privateKey, plainText);
-  std::cout << signature << std::endl;
-  bool authentic = VerifyRSA::verify(publicKey, "My secret message.\n", signature);
+  bool authentic = VerifyRSA::verify(publicKey, plainText, signature);
   if (authentic) { std::cout << "Works!!!" << std::endl; }
   return 0;
 }

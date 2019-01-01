@@ -1,3 +1,6 @@
+// https://github.com/rodlie/verifyrsa
+// BSD 3-Clause License
+
 #ifndef VERIFYRSA_H
 #define VERIFYRSA_H
 
