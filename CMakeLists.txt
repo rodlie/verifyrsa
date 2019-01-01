@@ -1,3 +1,6 @@
+# https://github.com/rodlie/verifyrsa
+# BSD 3-Clause License
+
 cmake_minimum_required(VERSION 2.8)
 
 project(VerifyRSA)
@@ -26,6 +29,7 @@ GENERATE_EXPORT_HEADER( VerifyRSA
 
 add_executable(rsa-sign rsa-sign.cpp)
 target_link_libraries(rsa-sign VerifyRSA)
+
 add_executable(rsa-verify rsa-verify.cpp)
 target_link_libraries(rsa-verify VerifyRSA)
 

@@ -1,3 +1,6 @@
+// https://github.com/rodlie/verifyrsa
+// BSD 3-Clause License
+
 #include "verifyrsa.h"
 #include <string>
 #include <iostream>
@@ -9,7 +12,7 @@ int main(int argc, char* argv[]) {
     if (argc<3) {
         std::cout << "VerifyRSA - https://github.com/rodlie/verifyrsa" << std::endl;
         std::cout << "" << std::endl;
-        std::cout << "Usage: rsa-verify <public key> <text file> <asc file>" << std::endl;
+        std::cout << "Usage: rsa-verify <public key> <text file>" << std::endl;
         return 0;
     }
 
@@ -29,12 +32,14 @@ int main(int argc, char* argv[]) {
         plain = ss.str();
         textFile.close();
     }
-    ascFile.open(argv[3]);
+    std::string ascFilename = argv[2];
+    ascFilename.append(".asc");
+    ascFile.open(ascFilename.c_str());
     if (ascFile.is_open()) {
         std::stringstream ss;
-	ss << ascFile.rdbuf();
+        ss << ascFile.rdbuf();
         asc = ss.str();
-	ascFile.close();
+        ascFile.close();
     }
 
     if (key.empty() || plain.empty() || asc.empty()) {

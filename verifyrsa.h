@@ -19,8 +19,11 @@
 class VerifyRSA
 {
 public:
-    static MYLIB_EXPORT char* sign(std::string privateKey, std::string plainText);
-    static MYLIB_EXPORT bool verify(std::string publicKey, std::string plainText, char* signatureBase64);
+    static MYLIB_EXPORT char* sign(std::string privateKey,
+                                   std::string plainText);
+    static MYLIB_EXPORT bool verify(std::string publicKey,
+                                    std::string plainText,
+                                    char* signatureBase64);
 };
 
 #endif // VERIFYRSA_H

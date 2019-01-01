@@ -1,3 +1,6 @@
+// https://github.com/rodlie/verifyrsa
+// BSD 3-Clause License
+
 #include "verifyrsa.h"
 #include <openssl/aes.h>
 #include <openssl/evp.h>
@@ -6,30 +9,30 @@
 #include <openssl/ssl.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
-#include <assert.h>
+//#include <assert.h>
 
 RSA* createPrivateRSA(const std::string &key) {
-  RSA *rsa = nullptr;
+  RSA *rsa = NULL;
   const char* c_string = key.c_str();
   BIO * keybio = BIO_new_mem_buf(reinterpret_cast<const void*>(c_string), -1);
-  if (keybio == nullptr) { return nullptr; }
+  if (keybio == NULL) { return NULL; }
   rsa = PEM_read_bio_RSAPrivateKey(keybio,
                                    &rsa,
-                                   nullptr,
-                                   nullptr);
+                                   NULL,
+                                   NULL);
   return rsa;
 }
 
 RSA* createPublicRSA(const std::string &key) {
-  RSA *rsa = nullptr;
+  RSA *rsa = NULL;
   BIO *keybio;
   const char* c_string = key.c_str();
   keybio = BIO_new_mem_buf(reinterpret_cast<const void*>(c_string), -1);
-  if (keybio == nullptr) { return nullptr; }
+  if (keybio == NULL) { return NULL; }
   rsa = PEM_read_bio_RSA_PUBKEY(keybio,
                                 &rsa,
-                                nullptr,
-                                nullptr);
+                                NULL,
+                                NULL);
   return rsa;
 }
 
@@ -42,9 +45,9 @@ bool RSASign( RSA* rsa,
   EVP_PKEY* priKey  = EVP_PKEY_new();
   EVP_PKEY_assign_RSA(priKey, rsa);
   if (EVP_DigestSignInit(m_RSASignCtx,
-                         nullptr,
+                         NULL,
                          EVP_sha256(),
-                         nullptr,
+                         NULL,
                          priKey)<=0)
   {
       return false;
@@ -56,7 +59,7 @@ bool RSASign( RSA* rsa,
       return false;
   }
   if (EVP_DigestSignFinal(m_RSASignCtx,
-                          nullptr,
+                          NULL,
                           MsgLenEnc) <=0)
   {
       return false;
@@ -84,9 +87,9 @@ bool RSAVerifySignature( RSA* rsa,
   EVP_MD_CTX* m_RSAVerifyCtx = EVP_MD_CTX_create();
 
   if (EVP_DigestVerifyInit(m_RSAVerifyCtx,
-                           nullptr,
+                           NULL,
                            EVP_sha256(),
-                           nullptr,
+                           NULL,
                            pubKey)<=0)
   {
     return false;
@@ -161,11 +164,16 @@ void Base64Decode(const char* b64message, unsigned char** buffer, size_t* length
 
 char *VerifyRSA::sign(std::string privateKey, std::string plainText)
 {
+    if (privateKey.find("-----BEGIN RSA PRIVATE KEY-----",0)!=0 ||
+        plainText.empty())
+    {
+        return "";
+    }
     RSA* privateRSA = createPrivateRSA(privateKey);
     unsigned char* encMessage;
     char* base64Text;
     size_t encMessageLength;
-    RSASign(privateRSA, (unsigned char*) plainText.c_str(), plainText.length(), &encMessage, &encMessageLength);
+    RSASign(privateRSA, (unsigned char*)plainText.c_str(), plainText.length(), &encMessage, &encMessageLength);
     Base64Encode(encMessage, encMessageLength, &base64Text);
     free(encMessage);
     return base64Text;
@@ -173,6 +181,15 @@ char *VerifyRSA::sign(std::string privateKey, std::string plainText)
 
 bool VerifyRSA::verify(std::string publicKey, std::string plainText, char *signatureBase64)
 {
+    if (publicKey.find("-----BEGIN PUBLIC KEY-----",0)!=0 ||
+        plainText.empty())
+    {
+        return false;
+    }
+    if (sizeof (signatureBase64)<1) {
+        std::cerr << "Not a valid signature!" << std::endl;
+        return false;
+    }
     RSA* publicRSA = createPublicRSA(publicKey);
     unsigned char* encMessage;
     size_t encMessageLength;

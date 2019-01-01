@@ -1,3 +1,6 @@
+// https://github.com/rodlie/verifyrsa
+// BSD 3-Clause License
+
 #include "verifyrsa.h"
 #include <string>
 #include <iostream>
@@ -43,7 +46,7 @@ int main(int argc, char* argv[]) {
     std::ofstream ascFile;
     std::string filename = argv[2];
     filename.append(".asc");
-    std::ofstream os(filename);
+    std::ofstream os(filename.c_str());
     if (!os) {
         std::cerr << "Failed to write signature!" << std::endl;
         return 1;
