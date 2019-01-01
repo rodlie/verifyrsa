@@ -24,5 +24,8 @@ GENERATE_EXPORT_HEADER( VerifyRSA
     STATIC_DEFINE VerifyRSA_BUILT_AS_STATIC
 )
 
-add_executable(example example.cpp)
-target_link_libraries(example VerifyRSA)
+add_executable(rsa-sign rsa-sign.cpp)
+target_link_libraries(rsa-sign VerifyRSA)
+add_executable(rsa-verify rsa-verify.cpp)
+target_link_libraries(rsa-verify VerifyRSA)
+
