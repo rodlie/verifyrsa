@@ -8,11 +8,14 @@ if(BUILD_SHARED_LIBS)
 set(LIB_TYPE SHARED)
 endif(BUILD_SHARED_LIBS)
 
+if(COMPILER_MSVC)
+    add_definitions(-DUNICODE -D_UNICODE)
+endif()
+
 add_library(VerifyRSA ${LIB_TYPE} verifyrsa.cpp)
 
 find_package(OpenSSL REQUIRED)
 target_link_libraries(VerifyRSA OpenSSL::SSL)
-
 include(GenerateExportHeader)
 GENERATE_EXPORT_HEADER( VerifyRSA
     BASE_NAME VerifyRSA
@@ -21,3 +24,5 @@ GENERATE_EXPORT_HEADER( VerifyRSA
     STATIC_DEFINE VerifyRSA_BUILT_AS_STATIC
 )
 
+add_executable(test test.cpp)
+target_link_libraries(test VerifyRSA)

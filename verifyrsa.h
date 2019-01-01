@@ -13,12 +13,11 @@
 
 #include <iostream>
 
-class MYLIB_EXPORT VerifyRSA
+class VerifyRSA
 {
 public:
-    VerifyRSA();
-    char* sign(std::string privateKey, std::string plainText);
-    bool verify(std::string publicKey, std::string plainText, char* signatureBase64);
+    static MYLIB_EXPORT char* sign(std::string privateKey, std::string plainText);
+    static MYLIB_EXPORT bool verify(std::string publicKey, std::string plainText, char* signatureBase64);
 };
 
 #endif // VERIFYRSA_H

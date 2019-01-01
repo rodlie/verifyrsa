@@ -9,27 +9,27 @@
 #include <assert.h>
 
 RSA* createPrivateRSA(const std::string &key) {
-  RSA *rsa = NULL;
+  RSA *rsa = nullptr;
   const char* c_string = key.c_str();
   BIO * keybio = BIO_new_mem_buf(reinterpret_cast<const void*>(c_string), -1);
-  if (keybio == NULL) { return NULL; }
+  if (keybio == nullptr) { return nullptr; }
   rsa = PEM_read_bio_RSAPrivateKey(keybio,
                                    &rsa,
-                                   NULL,
-                                   NULL);
+                                   nullptr,
+                                   nullptr);
   return rsa;
 }
 
 RSA* createPublicRSA(const std::string &key) {
-  RSA *rsa = NULL;
+  RSA *rsa = nullptr;
   BIO *keybio;
   const char* c_string = key.c_str();
   keybio = BIO_new_mem_buf(reinterpret_cast<const void*>(c_string), -1);
-  if (keybio == NULL) { return NULL; }
+  if (keybio == nullptr) { return nullptr; }
   rsa = PEM_read_bio_RSA_PUBKEY(keybio,
                                 &rsa,
-                                NULL,
-                                NULL);
+                                nullptr,
+                                nullptr);
   return rsa;
 }
 
@@ -42,9 +42,9 @@ bool RSASign( RSA* rsa,
   EVP_PKEY* priKey  = EVP_PKEY_new();
   EVP_PKEY_assign_RSA(priKey, rsa);
   if (EVP_DigestSignInit(m_RSASignCtx,
-                         NULL,
+                         nullptr,
                          EVP_sha256(),
-                         NULL,
+                         nullptr,
                          priKey)<=0)
   {
       return false;
@@ -56,7 +56,7 @@ bool RSASign( RSA* rsa,
       return false;
   }
   if (EVP_DigestSignFinal(m_RSASignCtx,
-                          NULL,
+                          nullptr,
                           MsgLenEnc) <=0)
   {
       return false;
@@ -84,9 +84,9 @@ bool RSAVerifySignature( RSA* rsa,
   EVP_MD_CTX* m_RSAVerifyCtx = EVP_MD_CTX_create();
 
   if (EVP_DigestVerifyInit(m_RSAVerifyCtx,
-                           NULL,
+                           nullptr,
                            EVP_sha256(),
-                           NULL,
+                           nullptr,
                            pubKey)<=0)
   {
     return false;
@@ -157,11 +157,6 @@ void Base64Decode(const char* b64message, unsigned char** buffer, size_t* length
 
   *length = BIO_read(bio, *buffer, strlen(b64message));
   BIO_free_all(bio);
-}
-
-VerifyRSA::VerifyRSA()
-{
-
 }
 
 char *VerifyRSA::sign(std::string privateKey, std::string plainText)
