@@ -4,11 +4,15 @@
 #ifndef VERIFYRSA_H
 #define VERIFYRSA_H
 
-#if defined (_WIN32)
+#if defined(EXPORT_DLL)
+#if defined(_WIN32)
 #if defined(VerifyRSA_EXPORTS)
 #define MYLIB_EXPORT __declspec(dllexport)
 #else
 #define MYLIB_EXPORT __declspec(dllimport)
+#endif
+#else
+#define MYLIB_EXPORT
 #endif
 #else
 #define MYLIB_EXPORT

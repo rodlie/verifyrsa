@@ -13,6 +13,7 @@ endif(BUILD_SHARED_LIBS)
 
 if(COMPILER_MSVC)
     add_definitions(-DUNICODE -D_UNICODE)
+    add_definitions(-DEXPORT_DLL)
 endif()
 
 add_library(VerifyRSA ${LIB_TYPE} verifyrsa.cpp)
