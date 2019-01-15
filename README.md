@@ -4,8 +4,6 @@ Very simple library used to sign and verify text files. Based on example by [Ian
 
 Requires CMake and OpenSSL. Tested on Windows with MSVC 2013 and Linux with GCC 5.5.
 
-A couple of examples are included, they can be used to sign and verify a text file.
-
 ```
 $ echo "Hello World!" > world.txt
 $ rsa-generate my 4096
