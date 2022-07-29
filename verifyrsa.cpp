@@ -9,7 +9,9 @@
 #include <openssl/ssl.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
+
 //#include <assert.h>
+#include <string.h>
 
 RSA* createPrivateRSA(const std::string &key) {
   RSA *rsa = NULL;
@@ -20,6 +22,7 @@ RSA* createPrivateRSA(const std::string &key) {
                                    &rsa,
                                    NULL,
                                    NULL);
+  BIO_free(keybio);
   return rsa;
 }
 
@@ -33,6 +36,7 @@ RSA* createPublicRSA(const std::string &key) {
                                   &rsa,
                                   NULL,
                                   NULL);
+  BIO_free(keybio);
   return rsa;
 }
 
@@ -50,18 +54,21 @@ bool RSASign( RSA* rsa,
                          NULL,
                          priKey)<=0)
   {
+      EVP_PKEY_free(priKey);
       return false;
   }
   if (EVP_DigestSignUpdate(m_RSASignCtx,
                            Msg,
                            MsgLen) <= 0)
   {
+      EVP_PKEY_free(priKey);
       return false;
   }
   if (EVP_DigestSignFinal(m_RSASignCtx,
                           NULL,
                           MsgLenEnc) <=0)
   {
+      EVP_PKEY_free(priKey);
       return false;
   }
   *EncMsg = reinterpret_cast<unsigned char*>(malloc(*MsgLenEnc));
@@ -69,9 +76,11 @@ bool RSASign( RSA* rsa,
                           *EncMsg,
                           MsgLenEnc) <= 0)
   {
+      EVP_PKEY_free(priKey);
       return false;
   }
-  EVP_MD_CTX_cleanup(m_RSASignCtx);
+  EVP_PKEY_free(priKey);
+  EVP_MD_CTX_free(m_RSASignCtx);
   return true;
 }
 
@@ -92,12 +101,14 @@ bool RSAVerifySignature( RSA* rsa,
                            NULL,
                            pubKey)<=0)
   {
+    EVP_PKEY_free(pubKey);
     return false;
   }
   if (EVP_DigestVerifyUpdate(m_RSAVerifyCtx,
                              Msg,
                              MsgLen) <= 0)
   {
+    EVP_PKEY_free(pubKey);
     return false;
   }
   int AuthStatus = EVP_DigestVerifyFinal(m_RSAVerifyCtx,
@@ -105,15 +116,18 @@ bool RSAVerifySignature( RSA* rsa,
                                          MsgHashLen);
   if (AuthStatus==1) {
     *Authentic = true;
-    EVP_MD_CTX_cleanup(m_RSAVerifyCtx);
+    EVP_PKEY_free(pubKey);
+    EVP_MD_CTX_free(m_RSAVerifyCtx);
     return true;
   } else if(AuthStatus==0){
     *Authentic = false;
-    EVP_MD_CTX_cleanup(m_RSAVerifyCtx);
+    EVP_PKEY_free(pubKey);
+    EVP_MD_CTX_free(m_RSAVerifyCtx);
     return true;
   } else{
     *Authentic = false;
-    EVP_MD_CTX_cleanup(m_RSAVerifyCtx);
+    EVP_PKEY_free(pubKey);
+    EVP_MD_CTX_free(m_RSAVerifyCtx);
     return false;
   }
 }
@@ -196,6 +210,7 @@ bool VerifyRSA::verify(std::string publicKey, std::string plainText, char *signa
     bool authentic;
     Base64Decode(signatureBase64, &encMessage, &encMessageLength);
     bool result = RSAVerifySignature(publicRSA, encMessage, encMessageLength, plainText.c_str(), plainText.length(), &authentic);
+    free(encMessage);
     return result & authentic;
 }
 
